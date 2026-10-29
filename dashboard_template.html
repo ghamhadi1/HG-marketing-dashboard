@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Marketing Performance</title>
+<style>
+  :root {
+    color-scheme: light;
+    --page: #f9f9f7; --surface: #fcfcfb; --ink: #0b0b0b; --ink-2: #52514e; --muted: #898781;
+    --grid: #e1e0d9; --track: #efeee9; --border: rgba(11,11,11,0.10);
+    --bar: #2a78d6; --none: #c3c2b7;
+    --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #eda100;
+    --s5: #e87ba4; --s6: #008300; --s7: #4a3aa7; --s8: #e34948;
+    --good: #0ca30c; --bad: #d03b3b;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --page: #0d0d0d; --surface: #1a1a19; --ink: #ffffff; --ink-2: #c3c2b7; --muted: #898781;
+      --grid: #2c2c2a; --track: #262624; --border: rgba(255,255,255,0.10);
+      --bar: #3987e5; --none: #52514e;
+      --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500;
+      --s5: #d55181; --s6: #008300; --s7: #9085e9; --s8: #e66767;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--page); color: var(--ink);
+         font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width: 1080px; margin: 0 auto; padding: 32px 16px 64px; }
+  h1 { font-size: 28px; line-height: 1.2; margin: 0 0 4px; }
+  h2 { font-size: 20px; margin: 0 0 4px; }
+  h3 { font-size: 16px; margin: 0; }
+  p { margin: 0; }
+  .sub { color: var(--ink-2); }
+  .small { font-size: 14px; color: var(--ink-2); }
+  .step { font-size: 13px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
+  section { background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+            padding: 24px; margin-top: 24px; }
+  section > .small { margin-bottom: 20px; max-width: 70ch; }
+  .num { font-variant-numeric: tabular-nums; }
+
+  /* budget advice */
+  .advice { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+  .advice > div { border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
+  .advice h3 { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .advice .icon { width: 22px; height: 22px; border-radius: 50%; color: #fff; font-size: 12px;
+                  display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  .more .icon { background: var(--good); } .less .icon { background: var(--bad); } .same .icon { background: var(--muted); }
+  .advice ul { list-style: none; margin: 0; padding: 0; }
+  .advice li { padding: 8px 0; border-top: 1px solid var(--grid); }
+  .advice li b { display: block; }
+  .advice li span { font-size: 14px; color: var(--ink-2); }
+  .advice .empty { font-size: 14px; color: var(--muted); padding-top: 8px; border-top: 1px solid var(--grid); }
+
+  /* bar rows */
+  .rows { display: grid; gap: 10px; }
+  .row { display: grid; grid-template-columns: 150px 1fr; align-items: center; gap: 12px; }
+  .row .name { font-size: 14px; text-align: right; }
+  .barline { display: flex; align-items: center; gap: 8px; min-width: 0; }
+  .bar { height: 18px; background: var(--bar); border-radius: 0 4px 4px 0; min-width: 2px; flex: none; }
+  .barline .val { font-size: 14px; white-space: nowrap; }
+  .barline .val i { font-style: normal; color: var(--ink-2); }
+
+  /* stacked */
+  .stack { display: flex; gap: 2px; height: 22px; flex: 1; min-width: 0; }
+  .seg { min-width: 3px; border-radius: 2px; color: #fff; font-size: 12px; font-weight: 600; line-height: 22px;
+         text-align: center; overflow: hidden; }
+  .seg.light { color: #0b0b0b; }
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 0 0 16px; font-size: 14px; color: var(--ink-2); }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .sw { width: 12px; height: 12px; border-radius: 3px; flex: none; }
+
+  /* funnels */
+  .funnels { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+  .funnel { border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
+  .funnel h3 { margin-bottom: 2px; }
+  .funnel .small { margin-bottom: 12px; }
+  .frow { display: grid; grid-template-columns: 96px 1fr 78px; align-items: center; gap: 8px; margin-top: 4px; }
+  .frow .lab { font-size: 13px; color: var(--ink-2); }
+  .frow .mid { display: flex; justify-content: center; }
+  .frow .fbar { height: 20px; background: var(--bar); border-radius: 4px; min-width: 3px; }
+  .frow .fval { font-size: 13px; white-space: nowrap; }
+  .frow .fval i { font-style: normal; color: var(--ink-2); }
+
+  /* tables */
+  details { margin-top: 20px; }
+  summary { cursor: pointer; font-size: 14px; color: var(--ink-2); }
+  .scroll { overflow-x: auto; margin-top: 12px; }
+  table { border-collapse: collapse; width: 100%; font-size: 14px; }
+  th, td { padding: 6px 10px; text-align: right; border-bottom: 1px solid var(--grid); white-space: nowrap; }
+  th:first-child, td:first-child { text-align: left; }
+  th { font-weight: 600; color: var(--ink-2); }
+  td { font-variant-numeric: tabular-nums; }
+
+  /* cleanup */
+  .ledger { display: grid; gap: 0; max-width: 760px; }
+  .ledger > div { display: grid; grid-template-columns: 64px 1fr; gap: 16px; padding: 12px 0; border-top: 1px solid var(--grid); }
+  .ledger > div:first-child { border-top: 0; }
+  .ledger .n { font-size: 20px; font-weight: 600; text-align: right; font-variant-numeric: tabular-nums; }
+  .ledger .total { border-top: 2px solid var(--ink); }
+  .note { margin-top: 16px; padding: 12px 16px; border-left: 3px solid var(--s4); background: var(--track);
+          border-radius: 0 8px 8px 0; font-size: 14px; }
+
+  #tip { position: fixed; pointer-events: none; z-index: 10; background: var(--ink); color: var(--surface);
+         font-size: 13px; padding: 6px 10px; border-radius: 6px; max-width: 260px; display: none; }
+  [data-tip]:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+  @media (max-width: 600px) {
+    section { padding: 16px; }
+    .row { grid-template-columns: 1fr; gap: 2px; }
+    .row .name { text-align: left; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Marketing Performance</h1>
+    <p class="sub">Which lead sources are worth next month's budget. <span id="updated"></span></p>
+  </header>
+
+  <section>
+    <p class="step">The short answer</p>
+    <h2>Where to put next month's budget</h2>
+    <p class="small">Ad costs are not recorded anywhere, so sources are ranked by how much confirmed revenue each lead brought in. Sales counts are small, so treat this as a direction, not a guarantee.</p>
+    <div class="advice" id="advice"></div>
+  </section>
+
+  <section>
+    <p class="step">1. Volume</p>
+    <h2>How many leads each source brought in</h2>
+    <p class="small">One lead = one real person. Test entries and duplicates are already removed (see the bottom of the page).</p>
+    <div class="rows" id="volume"></div>
+    <details><summary>See the numbers</summary><div class="scroll" id="volume-table"></div></details>
+  </section>
+
+  <section>
+    <p class="step">2. Pipeline</p>
+    <h2>Where each source's leads are right now</h2>
+    <p class="small">Each bar is all the leads from one source, split by their current stage in the sales pipeline. The pieces of a bar always add up to that source's lead count.</p>
+    <div class="legend" id="stage-legend"></div>
+    <div class="rows" id="pipeline"></div>
+    <details><summary>See the numbers</summary><div class="scroll" id="pipeline-table"></div></details>
+  </section>
+
+  <section>
+    <p class="step">3. Conversion</p>
+    <h2>How far each source's leads get</h2>
+    <p class="small">Each funnel follows one source from first contact to a sale. The percentage shows how many made it from the step above. Best converting source first.</p>
+    <div class="funnels" id="funnels"></div>
+    <details><summary>See the numbers</summary><div class="scroll" id="funnel-table"></div></details>
+    <p class="small" style="margin:16px 0 0">How the steps are counted: <b>Opted in</b> = has a deal in the pipeline. <b>Qualified</b> = opted in and not disqualified. <b>Call booked</b> = reached the booking stage or beyond. <b>Call happened</b> = closed, in follow up, or lost after the call (cancelled, no-show and calls still to come are not counted). <b>Sale closed</b> = in the Closed stage.</p>
+  </section>
+
+  <section>
+    <p class="step">4. Revenue</p>
+    <h2>Confirmed revenue from closed sales</h2>
+    <p class="small">Highest earning source first. Only sales with a believable amount are added up.</p>
+    <div class="rows" id="revenue"></div>
+    <div id="revenue-note"></div>
+    <details><summary>See the numbers</summary><div class="scroll" id="revenue-table"></div></details>
+  </section>
+
+  <section>
+    <p class="step">About the data</p>
+    <h2>What was left out, and why</h2>
+    <p class="small">The system holds more records than the ones counted above. Here is every record that was removed and the reason.</p>
+    <div class="ledger" id="ledger"></div>
+    <h3 style="margin-top:28px">Sales to double-check</h3>
+    <p class="small" style="margin:4px 0 0">These stay in the lead and sales counts. Only their amount is kept out of revenue.</p>
+    <div id="heldback"></div>
+  </section>
+</main>
+<div id="tip" role="tooltip"></div>
+
+<script>
+const DATA = /*__DATA__*/null;
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const money = n => "$" + Math.round(n).toLocaleString("en-US");
+const pct = (a, b) => b ? Math.round(a / b * 100) + "%" : "–";
+const plural = (n, word) => n + " " + word + (n === 1 ? "" : "s");
+const sources = DATA.sources;
+const NOT_IN = "Not in the pipeline yet";
+const stageColor = {};
+DATA.stages.forEach((s, i) => stageColor[s] = `var(--s${i + 1})`);
+stageColor[NOT_IN] = "var(--none)";
+const lightText = new Set([DATA.stages[3], DATA.stages[4], NOT_IN]);
+
+function table(head, rows) {
+  return "<table><thead><tr>" + head.map(h => `<th>${esc(h)}</th>`).join("") + "</tr></thead><tbody>" +
+    rows.map(r => "<tr>" + r.map(c => `<td>${esc(c)}</td>`).join("") + "</tr>").join("") + "</tbody></table>";
+}
+
+$("updated").textContent = "Updated " + new Date(DATA.updatedAt).toLocaleString("en-GB",
+  { weekday: "long", day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" }) + ".";
+
+// The short answer
+const groups = [
+  ["more", "▲", "Put more in"],
+  ["same", "●", "Keep the same"],
+  ["less", "▼", "Pull back"],
+];
+$("advice").innerHTML = groups.map(([key, icon, title]) => {
+  const list = sources.filter(s => s.verdict === key).sort((a, b) => b.revenuePerLead - a.revenuePerLead);
+  return `<div class="${key}"><h3><span class="icon" aria-hidden="true">${icon}</span>${title}</h3>` +
+    (list.length ? "<ul>" + list.map(s => `<li><b>${esc(s.name)}</b><span>${esc(s.reason)}</span></li>`).join("") + "</ul>"
+                 : `<p class="empty">No source falls here right now.</p>`) + "</div>";
+}).join("");
+
+// 1. Volume
+const maxLeads = Math.max(...sources.map(s => s.leads));
+$("volume").innerHTML = sources.map(s =>
+  `<div class="row"><div class="name">${esc(s.name)}</div><div class="barline">
+     <div class="bar" style="width:${s.leads / maxLeads * 85}%" tabindex="0" data-tip="${esc(s.name)}: ${plural(s.leads, "lead")}"></div>
+     <span class="val num">${s.leads}</span></div></div>`).join("");
+$("volume-table").innerHTML = table(["Source", "Leads"], sources.map(s => [s.name, s.leads]));
+
+// 2. Pipeline
+const parts = [...DATA.stages, NOT_IN];
+const count = (s, part) => part === NOT_IN ? s.notInPipeline : s.stages[part];
+$("stage-legend").innerHTML = parts.map(p => `<span><i class="sw" style="background:${stageColor[p]}"></i>${esc(p)}</span>`).join("");
+$("pipeline").innerHTML = sources.map(s =>
+  `<div class="row"><div class="name">${esc(s.name)}</div><div class="barline"><div class="stack">` +
+  parts.filter(p => count(s, p) > 0).map(p => {
+    const n = count(s, p);
+    return `<div class="seg${lightText.has(p) ? " light" : ""}" style="flex:${n} 0 0;background:${stageColor[p]}" tabindex="0"
+              data-tip="${esc(s.name)} · ${esc(p)}: ${n} of ${s.leads} leads (${pct(n, s.leads)})">${n / s.leads >= 0.07 ? n : ""}</div>`;
+  }).join("") + `</div><span class="val num">${s.leads} <i>leads</i></span></div></div>`).join("");
+$("pipeline-table").innerHTML = table(["Source", ...parts, "Total leads"],
+  sources.map(s => [s.name, ...parts.map(p => count(s, p)), s.leads]));
+
+// 3. Conversion
+const steps = DATA.funnelSteps;
+const byConversion = [...sources].sort((a, b) => b.funnel[5] / b.leads - a.funnel[5] / a.leads);
+$("funnels").innerHTML = byConversion.map(s =>
+  `<div class="funnel"><h3>${esc(s.name)}</h3>
+   <p class="small">${s.funnel[5]} of ${s.leads} leads became a sale (${pct(s.funnel[5], s.leads)})</p>` +
+  steps.map((step, i) => {
+    const n = s.funnel[i], prev = i ? s.funnel[i - 1] : null;
+    const tip = i ? `${esc(s.name)}: ${n} of ${prev} went from "${steps[i - 1]}" to "${step}" (${pct(n, prev)})`
+                  : `${esc(s.name)}: ${plural(n, "lead")}`;
+    return `<div class="frow"><span class="lab">${step}</span>
+      <span class="mid"><span class="fbar" style="width:${n / s.leads * 100}%" tabindex="0" data-tip="${tip}"></span></span>
+      <span class="fval num">${n}${i ? ` <i>· ${pct(n, prev)}</i>` : ""}</span></div>`;
+  }).join("") + "</div>").join("");
+$("funnel-table").innerHTML = table(
+  ["Source", ...steps, ...steps.slice(1).map((st, i) => `${steps[i]} → ${st}`), "Leads → Sale"],
+  byConversion.map(s => [s.name, ...s.funnel, ...s.funnel.slice(1).map((n, i) => pct(n, s.funnel[i])), pct(s.funnel[5], s.leads)]));
+
+// 4. Revenue
+const byRevenue = [...sources].sort((a, b) => b.revenue - a.revenue);
+const maxRev = Math.max(...sources.map(s => s.revenue), 1);
+$("revenue").innerHTML = byRevenue.map(s =>
+  `<div class="row"><div class="name">${esc(s.name)}</div><div class="barline">
+     <div class="bar" style="width:${s.revenue / maxRev * 62}%" tabindex="0"
+          data-tip="${esc(s.name)}: ${money(s.revenue)} from ${plural(s.sales - s.heldBackDeals - s.closedNoAmount, "sale")}, ${money(s.revenuePerLead)} per lead"></div>
+     <span class="val num">${money(s.revenue)} <i>· ${plural(s.sales, "sale")}${s.heldBackDeals || s.closedNoAmount ? "*" : ""}</i></span></div></div>`).join("");
+const flagged = sources.filter(s => s.heldBackDeals || s.closedNoAmount);
+$("revenue-note").innerHTML = flagged.length ? `<p class="note">* ` + flagged.map(s => {
+  const bits = [];
+  if (s.heldBackDeals) bits.push(`${plural(s.heldBackDeals, "sale")} recorded at ${money(s.heldBackValue)} not added in until the amount is confirmed`);
+  if (s.closedNoAmount) bits.push(`${plural(s.closedNoAmount, "sale")} with no amount entered`);
+  return `<b>${esc(s.name)}</b>: ${bits.join("; ")}`;
+}).join(". ") + `. Details at the bottom of the page.</p>` : "";
+$("revenue-table").innerHTML = table(
+  ["Source", "Closed sales", "Sales added up", "Confirmed revenue", "Average sale", "Revenue per lead", "Amount to confirm"],
+  byRevenue.map(s => [s.name, s.sales, s.sales - s.heldBackDeals - s.closedNoAmount, money(s.revenue),
+                      s.avgSale ? money(s.avgSale) : "–", money(s.revenuePerLead), s.heldBackValue ? money(s.heldBackValue) : "–"]));
+
+// About the data
+const c = DATA.cleanup;
+$("ledger").innerHTML =
+  `<div><span class="n">${c.contactsInSandbox}</span><div><b>Contacts found in the system</b></div></div>` +
+  c.removed.map(r => `<div><span class="n">−${r.count}</span><div><b>${esc(r.what)}</b><p class="small">${esc(r.why)}</p></div></div>`).join("") +
+  `<div class="total"><span class="n">${c.leadsCounted}</span><div><b>Leads counted on this page</b>
+     <p class="small">${c.dealsCounted} of them have a deal in the sales pipeline.` +
+  (c.unknownSource ? ` ${c.unknownSource} have no source recorded and appear as "Unknown source".` : " Every one has a source recorded.") +
+  `</p></div></div>`;
+$("heldback").innerHTML = c.heldBack.filter(h => h.count).map(h =>
+  `<p style="margin-top:16px"><b>${esc(h.what)}: ${h.count}</b></p><p class="small">${esc(h.why)}</p>
+   <div class="scroll">` + table(["Company", "Source", "Stage", "Amount recorded"],
+     h.items.filter(i => i.stage === "Closed").map(i => [i.deal, i.source, i.stage, money(i.value)])) + "</div>").join("")
+  || `<p class="small" style="margin-top:12px">Nothing to check right now.</p>`;
+
+// Hover / keyboard tooltip
+const tip = $("tip");
+function show(el, x, y) {
+  tip.textContent = el.dataset.tip;
+  tip.style.display = "block";
+  const w = tip.offsetWidth, h = tip.offsetHeight;
+  tip.style.left = Math.max(8, Math.min(x + 12, innerWidth - w - 8)) + "px";
+  tip.style.top = (y + h + 24 > innerHeight ? y - h - 12 : y + 16) + "px";
+}
+document.addEventListener("mousemove", e => {
+  const el = e.target.closest("[data-tip]");
+  el ? show(el, e.clientX, e.clientY) : tip.style.display = "none";
+});
+document.addEventListener("focusin", e => {
+  const el = e.target.closest("[data-tip]");
+  if (el) { const r = el.getBoundingClientRect(); show(el, r.left, r.bottom - 12); }
+});
+document.addEventListener("focusout", () => tip.style.display = "none");
+</script>
+</body>
+</html>
